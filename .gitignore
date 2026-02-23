@@ -1,0 +1,16 @@
+# Local media assets (keep out of git)
+*.mp3
+*.wav
+*.ogg
+*.m4a
+*.flac
+*.aac
+*.mp4
+*.mov
+*.webm
+*.avi
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
