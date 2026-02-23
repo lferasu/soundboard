@@ -4,6 +4,21 @@
     "slug": "super-soundboard",
     "version": "1.0.0",
     "orientation": "portrait",
-    "platforms": ["ios", "android", "web"]
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0f16832a-0035-410b-b617-387bedd1541c"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.lferasu.supersoundboard",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
   }
 }
