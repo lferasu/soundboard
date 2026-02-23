@@ -21,7 +21,12 @@ A colorful one-page soundboard app designed for 10-year-olds. It includes **8 bi
 
 - `index.html` - App layout and sound buttons.
 - `styles.css` - Playful visual styling.
-- `script.js` - Sound generation and interaction logic using the Web Audio API.
+- `script.js` - Sound generation and interaction logic using the Web Audio API (no audio files needed).
+
+
+## Audio assets
+
+This app does **not** depend on local `.mp3`/`.wav` files. All sounds are synthesized in the browser with the Web Audio API, so there are no binary media assets to commit or host for playback.
 
 ## Run locally
 
