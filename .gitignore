@@ -21,3 +21,8 @@ package-lock.json
 !assets/
 !assets/sounds/
 !assets/sounds/*.wav
+
+# Local environment
+.env
+.env.*
+!.env.example

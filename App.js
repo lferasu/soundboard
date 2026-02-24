@@ -2,17 +2,15 @@
 import { SafeAreaView, StatusBar, StyleSheet, Text, Pressable, View, TextInput, Image, useWindowDimensions } from 'react-native';
 import { Audio } from 'expo-av';
 import { Asset } from 'expo-asset';
+import { GRID_GAP, shuffleArray, toLabel, calculateAdaptiveGrid } from './utils/soundboardUtils';
 
 const BUTTON_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#ec4899', '#a855f7', '#3b82f6', '#14b8a6', '#0ea5e9', '#f43f5e'];
 const FREESOUND_API_BASE = 'https://freesound.org/apiv2/search/';
 const PRESET_MOODS = ['funny', 'scary', 'random'];
-const DESIRED_SOUND_COUNT = 9;
+const DESIRED_SOUND_COUNT = 20;
 const TINGLE_IMAGE = require('./assets/images/tinkle.png');
 const TINKLE_LOAD_GIF = require('./assets/images/tinkle_load.gif');
 
-const MIN_BUTTON_SIZE = 60;
-const MAX_BUTTON_SIZE = 126;
-const GRID_GAP = 10;
 const OUTER_PADDING = 12;
 const CARD_PADDING = 12;
 const HEADER_HEIGHT = 82;
@@ -21,61 +19,7 @@ const SWITCH_FADE_MS = 140;
 const MIN_BUTTONS_PANEL_WIDTH = 180;
 const MIN_CONTROLS_PANEL_WIDTH = 150;
 const MIN_BUTTON_LIMIT = 1;
-const MAX_BUTTON_LIMIT = 9;
-
-function shuffleArray(items) {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function toLabel(name, fallbackIndex) {
-  const withoutExtension = (name || '').replace(/\.[a-z0-9]{2,5}$/i, '');
-  const trimmed = withoutExtension.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
-  if (!trimmed) {
-    return `SOUND ${fallbackIndex + 1}`;
-  }
-  return trimmed.slice(0, 14).toUpperCase();
-}
-
-function calculateAdaptiveGrid(panelWidth, panelHeight, maxCount) {
-  const countCap = Math.min(9, Math.max(0, maxCount));
-  if (!countCap) {
-    return { count: 0, size: MIN_BUTTON_SIZE, columns: 1 };
-  }
-
-  const usableWidth = Math.max(200, panelWidth - 20);
-  const usableHeight = Math.max(110, panelHeight - 24);
-
-  for (let count = countCap; count >= 1; count -= 1) {
-    let bestForCount = null;
-
-    for (let columns = 1; columns <= Math.min(6, count); columns += 1) {
-      const rows = Math.ceil(count / columns);
-      const sizeByWidth = (usableWidth - GRID_GAP * (columns - 1)) / columns;
-      const sizeByHeight = (usableHeight - GRID_GAP * (rows - 1)) / rows;
-      const candidateSize = Math.floor(Math.min(sizeByWidth, sizeByHeight));
-
-      if (candidateSize < MIN_BUTTON_SIZE) {
-        continue;
-      }
-
-      const clampedSize = Math.min(candidateSize, MAX_BUTTON_SIZE);
-      if (!bestForCount || clampedSize > bestForCount.size) {
-        bestForCount = { count, size: clampedSize, columns };
-      }
-    }
-
-    if (bestForCount) {
-      return bestForCount;
-    }
-  }
-
-  return { count: 1, size: MIN_BUTTON_SIZE, columns: 1 };
-}
+const MAX_BUTTON_LIMIT = 20;
 
 export default function App() {
   const { width, height } = useWindowDimensions();
@@ -91,7 +35,7 @@ export default function App() {
   const [buttonsPanelSize, setButtonsPanelSize] = useState({ width: 0, height: 0 });
   const [isFetchingMood, setIsFetchingMood] = useState(false);
   const [isLoaderReady, setIsLoaderReady] = useState(false);
-  const [buttonLimit, setButtonLimit] = useState(5);
+  const [buttonLimit, setButtonLimit] = useState(9);
 
   const contentWidth = Math.max(300, width - OUTER_PADDING * 2 - CARD_PADDING * 2);
   const contentHeight = Math.max(180, height - OUTER_PADDING * 2 - CARD_PADDING * 2 - HEADER_HEIGHT);
@@ -319,7 +263,12 @@ export default function App() {
       <StatusBar barStyle="light-content" />
       <View style={styles.card}>
         <View style={styles.header}>
-          <View style={styles.headerControlRow}>
+          <View style={styles.headerTopRow}>
+            <View style={styles.headerSideSpacer} />
+            <View style={styles.titleRow}>
+              <Text style={styles.title}>The Dinkleberry Soundboard</Text>
+              <Image source={TINGLE_IMAGE} style={styles.inlineTitleImage} resizeMode="contain" />
+            </View>
             <View style={styles.buttonLimitWidget}>
               <Text style={styles.buttonLimitLabel}>Buttons</Text>
               <View style={styles.buttonLimitControls}>
@@ -338,11 +287,6 @@ export default function App() {
                 </Pressable>
               </View>
             </View>
-          </View>
-
-          <View style={styles.titleRow}>
-            <Text style={styles.title}>The Tinkleberry Soundboard</Text>
-            <Image source={TINGLE_IMAGE} style={styles.inlineTitleImage} resizeMode="contain" />
           </View>
           <Text style={styles.subtitle}>{activeMood ? `${activeMood.toUpperCase()} • ${layout.count} loaded` : statusText}</Text>
         </View>
@@ -458,10 +402,15 @@ const styles = StyleSheet.create({
     paddingTop: 2,
     paddingBottom: 6
   },
-  headerControlRow: {
+  headerTopRow: {
     width: '100%',
-    alignItems: 'flex-end',
-    marginBottom: 2
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    columnGap: 10
+  },
+  headerSideSpacer: {
+    width: 98
   },
   buttonLimitWidget: {
     borderRadius: 10,
@@ -513,6 +462,7 @@ const styles = StyleSheet.create({
     fontWeight: '900'
   },
   titleRow: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
