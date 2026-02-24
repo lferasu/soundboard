@@ -20,6 +20,8 @@ const CONTENT_GAP = 10;
 const SWITCH_FADE_MS = 140;
 const MIN_BUTTONS_PANEL_WIDTH = 180;
 const MIN_CONTROLS_PANEL_WIDTH = 150;
+const MIN_BUTTON_LIMIT = 1;
+const MAX_BUTTON_LIMIT = 9;
 
 function shuffleArray(items) {
   const copy = [...items];
@@ -89,6 +91,7 @@ export default function App() {
   const [buttonsPanelSize, setButtonsPanelSize] = useState({ width: 0, height: 0 });
   const [isFetchingMood, setIsFetchingMood] = useState(false);
   const [isLoaderReady, setIsLoaderReady] = useState(false);
+  const [buttonLimit, setButtonLimit] = useState(5);
 
   const contentWidth = Math.max(300, width - OUTER_PADDING * 2 - CARD_PADDING * 2);
   const contentHeight = Math.max(180, height - OUTER_PADDING * 2 - CARD_PADDING * 2 - HEADER_HEIGHT);
@@ -100,8 +103,8 @@ export default function App() {
   const effectiveButtonsPanelHeight = buttonsPanelSize.height || contentHeight;
 
   const layout = useMemo(
-    () => calculateAdaptiveGrid(effectiveButtonsPanelWidth, effectiveButtonsPanelHeight, freesoundItems.length),
-    [effectiveButtonsPanelWidth, effectiveButtonsPanelHeight, freesoundItems.length]
+    () => calculateAdaptiveGrid(effectiveButtonsPanelWidth, effectiveButtonsPanelHeight, Math.min(freesoundItems.length, buttonLimit)),
+    [effectiveButtonsPanelWidth, effectiveButtonsPanelHeight, freesoundItems.length, buttonLimit]
   );
 
   const visibleSounds = useMemo(() => freesoundItems.slice(0, layout.count), [freesoundItems, layout.count]);
@@ -316,12 +319,33 @@ export default function App() {
       <StatusBar barStyle="light-content" />
       <View style={styles.card}>
         <View style={styles.header}>
+          <View style={styles.headerControlRow}>
+            <View style={styles.buttonLimitWidget}>
+              <Text style={styles.buttonLimitLabel}>Buttons</Text>
+              <View style={styles.buttonLimitControls}>
+                <Pressable
+                  onPress={() => setButtonLimit((current) => Math.max(MIN_BUTTON_LIMIT, current - 1))}
+                  style={({ pressed }) => [styles.buttonLimitControl, pressed && styles.buttonLimitControlPressed]}
+                >
+                  <Text style={styles.buttonLimitControlText}>−</Text>
+                </Pressable>
+                <Text style={styles.buttonLimitValue}>{buttonLimit}</Text>
+                <Pressable
+                  onPress={() => setButtonLimit((current) => Math.min(MAX_BUTTON_LIMIT, current + 1))}
+                  style={({ pressed }) => [styles.buttonLimitControl, pressed && styles.buttonLimitControlPressed]}
+                >
+                  <Text style={styles.buttonLimitControlText}>+</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+
           <View style={styles.titleRow}>
             <Text style={styles.title}>The Tinkleberry Soundboard</Text>
             <Image source={TINGLE_IMAGE} style={styles.inlineTitleImage} resizeMode="contain" />
           </View>
           <Text style={styles.subtitle}>{activeMood ? `${activeMood.toUpperCase()} • ${layout.count} loaded` : statusText}</Text>
-        </View>b
+        </View>
 
         <View style={styles.contentRow}>
           <View
@@ -433,6 +457,60 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingTop: 2,
     paddingBottom: 6
+  },
+  headerControlRow: {
+    width: '100%',
+    alignItems: 'flex-end',
+    marginBottom: 2
+  },
+  buttonLimitWidget: {
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#334155',
+    backgroundColor: '#0b1220',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    alignItems: 'center'
+  },
+  buttonLimitLabel: {
+    color: '#cbd5e1',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase'
+  },
+  buttonLimitControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 6,
+    marginTop: 2
+  },
+  buttonLimitControl: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#475569',
+    backgroundColor: '#1f2937',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  buttonLimitControlPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.95 }]
+  },
+  buttonLimitControlText: {
+    color: '#f8fafc',
+    fontSize: 16,
+    fontWeight: '900',
+    lineHeight: 18
+  },
+  buttonLimitValue: {
+    minWidth: 18,
+    textAlign: 'center',
+    color: '#f8fafc',
+    fontSize: 14,
+    fontWeight: '900'
   },
   titleRow: {
     flexDirection: 'row',
