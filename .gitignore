@@ -16,3 +16,8 @@ node_modules/
 *.gif
 *.webp
 package-lock.json
+
+# Allow bundled app sound effects
+!assets/
+!assets/sounds/
+!assets/sounds/*.wav

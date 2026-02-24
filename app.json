@@ -3,7 +3,7 @@
     "name": "Super Soundboard",
     "slug": "super-soundboard",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "landscape",
     "platforms": [
       "ios",
       "android",

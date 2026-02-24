@@ -4,8 +4,8 @@ This project is now a **React Native app** built with **Expo** (not a static web
 
 ## Features
 
-- 8 large, kid-friendly sound buttons.
-- Voice-based sound effects using `expo-speech`.
+- Adaptive candy-style buttons optimized for landscape screens.
+- Random sound effects fetched from Freesound (`funny` query).
 - Works on iOS, Android, and Expo web.
 
 ## Project structure
@@ -35,5 +35,6 @@ npm run start
 
 ## Notes
 
-- This app uses text-to-speech (`expo-speech`) to generate the sound effects.
+- This app uses `expo-av` to play Freesound preview clips.
+- Set `EXPO_PUBLIC_FREESOUND_API_KEY` before running the app.
 - No static website files are required anymore.
